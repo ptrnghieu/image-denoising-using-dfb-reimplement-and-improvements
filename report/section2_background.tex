@@ -21,6 +21,14 @@ Hai ma trận này có $|\det| = 2$, tức là mỗi lần downsampling giữ l�
 \textbf{Fan filter và modulation.}
 Tại mỗi tầng của cây, diamond filter được biến đổi thành fan filter thông qua phép modulation — nhân tín hiệu với chuỗi $(-1)^{n_1 + n_2}$ hoặc các biến thể tương đương. Sự kết hợp giữa fan filter và quincunx sampling tạo ra các subband có passband dạng wedge trong mặt phẳng tần số: mỗi wedge tương ứng với một dải hướng nhất định. Hình~\ref{fig:dfb_partition} minh họa sự phân chia mặt phẳng tần số thành 8 wedge của một DFB 8 band.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{figures/dfb_frequency_partition.png}
+    \caption{Phân chia mặt phẳng tần số 2D thành 8 directional subband của DFB.
+             Mỗi màu đại diện cho một wedge-shaped subband tương ứng với một hướng trong $[0°, 180°)$.}
+    \label{fig:dfb_partition}
+\end{figure}
+
 \textbf{Perfect reconstruction.}
 Nhờ thiết kế đối xứng của analysis và synthesis filter, DFB đảm bảo perfect reconstruction: khi không có bất kỳ biến đổi nào trên các subband, tín hiệu tái tạo hoàn toàn bằng tín hiệu gốc. Đây là tính chất quan trọng để đảm bảo chất lượng denoising.
 

@@ -72,6 +72,13 @@ Hệ số $1.2$ tạo overlap nhỏ giữa các band liền kề để partition
     = \frac{\tilde{H}_k(\omega_1, \omega_2)}{\displaystyle\sum_{j=0}^{N-1} \tilde{H}_j(\omega_1, \omega_2)}
 \end{equation}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/raised_cosine_partition.png}
+    \caption{Hình dạng các filter trong miền tần số góc. \textit{Trái:} ba filter $\tilde{H}_k$ trước khi chuẩn hóa, có overlap nhỏ tại ranh giới. \textit{Phải:} sau khi chuẩn hóa, tổng các filter bằng 1 tại mọi tần số (partition of unity).}
+    \label{fig:raised_cosine}
+\end{figure}
+
 % -----------------------------------------------------------------------
 \subsection{Vấn đề sparse representation và kỹ thuật LP/HP split}
 \label{subsec:lphp}
@@ -90,6 +97,20 @@ Trong khi đó, các phương pháp thresholding như SURE và BayesShrink đư�
 \end{equation}
 
 trong đó $G_\sigma$ là Gaussian kernel với $\sigma = 2.0$ pixel. Thành phần LP chứa hầu hết năng lượng tần số thấp của ảnh và gần như noise-free (do Gaussian blur trung bình hóa noise hiệu quả ở tần số thấp). Thành phần HP chứa các cạnh, texture và noise --- và quan trọng hơn, \emph{HP là sparse}: tại các vùng phẳng, HP $\approx 0$; chỉ tại các cạnh và texture mới có giá trị lớn.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/lp_hp_split.png}
+    \caption{Minh họa kỹ thuật LP/HP split trên ảnh Camera nhiễu ($\sigma = 20$). \textit{Trái:} ảnh nhiễu $y$. \textit{Giữa:} thành phần lowpass LP $= G_2 * y$ (mịn, gần như noise-free). \textit{Phải:} thành phần highpass HP $= y - \text{LP}$ (sparse, tập trung tại cạnh và texture).}
+    \label{fig:lphp_split}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/dense_vs_sparse.png}
+    \caption{So sánh directional subband số 0 của DFB 8 band. \textit{Trái:} subband của ảnh nhiễu đầy đủ (dense --- không sparse). \textit{Phải:} subband của thành phần HP (sparse --- hầu hết hệ số $\approx 0$, chỉ có cạnh theo hướng tương ứng có giá trị lớn). Sparsity là điều kiện cần cho thresholding hiệu quả.}
+    \label{fig:dense_vs_sparse}
+\end{figure}
 
 DFB sau đó chỉ được áp dụng lên thành phần HP. Các directional subband của HP có phân bố sparse --- điều kiện cần thiết cho thresholding hoạt động hiệu quả. Ảnh được tái tạo bằng:
 
