@@ -1,0 +1,30 @@
+\section{Kết luận}
+\label{sec:conclusion}
+
+Báo cáo này đã trình bày quá trình reimplementation thuật toán image denoising sử dụng Directional Filter Bank (DFB) của Rosiles và Smith \cite{rosiles2000}, cùng với ba cải tiến đề xuất.
+
+\textbf{Về reimplementation.}
+Thay vì cài đặt critically-sampled DFB với quincunx decimation theo paper gốc, chúng tôi sử dụng undecimated DFB trong miền tần số --- một lựa chọn đơn giản hơn về mặt kỹ thuật nhưng vẫn giữ được tính partition-of-unity và perfect reconstruction. Hai đóng góp kỹ thuật quan trọng trong quá trình reimplementation:
+\begin{enumerate}
+    \item \textbf{LP/HP split:} Cần thiết để tạo ra sparse subbands cho thresholding hiệu quả. Không có LP/HP split, các full-spectrum wedge filter tạo ra dense subbands, khiến SURE/GCV chọn threshold $\approx 0$.
+    \item \textbf{Sigma normalization trong SURE/GCV:} Bắt buộc phải chuẩn hóa hệ số về noise variance bằng 1 trước khi tính SURE/GCV. Bỏ qua bước này dẫn đến threshold không có nghĩa thống kê, giảm PSNR xuống gần mức ảnh nhiễu.
+\end{enumerate}
+
+\textbf{Về kết quả thực nghiệm.}
+Trong tất cả các phương pháp DFB, DFB-SURE đạt PSNR và SSIM tốt nhất, xác nhận lý thuyết về tính tối ưu của SURE. DWT-Bayes vẫn là baseline khó vượt qua về PSNR (do thư viện đã được tối ưu cao), nhưng DFB-SURE đạt SSIM tốt hơn, cho thấy khả năng bảo tồn cấu trúc hướng tốt hơn.
+
+\textbf{Về các cải tiến.}
+\begin{itemize}
+    \item BayesShrink (Cải tiến 1) cung cấp một lựa chọn nhanh hơn SURE ($O(n)$ vs $O(n\log n)$) với chất lượng gần tương đương ở mức nhiễu cao.
+    \item DFB 16 band (Cải tiến 2) cải thiện nhẹ ở noise level thấp, phù hợp nhất cho ảnh giàu directional texture như SAR.
+    \item Multi-scale undecimated DFB (Cải tiến 3) là kiến trúc promising có quan hệ mật thiết với Contourlet transform \cite{do2005}, nhưng cần tinh chỉnh thêm về sigma estimation per-scale để đạt hiệu quả tốt nhất.
+\end{itemize}
+
+\textbf{Hướng phát triển.}
+Một số hướng nghiên cứu tiếp theo:
+\begin{itemize}
+    \item Cài đặt critically-sampled DFB (quincunx decimation, diamond filter) để so sánh trực tiếp với paper gốc và kiểm tra tác động của decimation lên sparsity.
+    \item Thử nghiệm trên ảnh SAR --- đây là use case chính mà DFB được kỳ vọng vượt trội DWT.
+    \item Kết hợp deep learning để học LP/HP split sigma và threshold estimator thay vì dùng công thức thống kê.
+    \item Áp dụng firm thresholding hoặc empirical Bayes estimator để giảm bias của soft thresholding.
+\end{itemize}
