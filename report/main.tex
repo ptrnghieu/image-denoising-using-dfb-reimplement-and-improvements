@@ -1,0 +1,72 @@
+\documentclass[12pt, a4paper]{article}
+
+% ── Encoding & language ──────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+
+% ── Math ─────────────────────────────────────────────────────────────────────
+\usepackage{amsmath, amssymb, amsthm}
+
+% ── Graphics & figures ───────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% ── Tables ───────────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% ── Layout ───────────────────────────────────────────────────────────────────
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Code listings ────────────────────────────────────────────────────────────
+\usepackage{listings}
+\usepackage{xcolor}
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    breaklines=true,
+    frame=single,
+}
+
+% ── Hyperlinks ───────────────────────────────────────────────────────────────
+\usepackage[hidelinks]{hyperref}
+
+% ── Bibliography ─────────────────────────────────────────────────────────────
+\usepackage[numbers, sort&compress]{natbib}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\title{
+    \textbf{Khử nhiễu ảnh sử dụng Directional Filter Banks} \\
+    \large Tái hiện và cải tiến thuật toán Rosiles \& Smith (ICIP 2000)
+}
+\author{ptrnghieu}
+\date{\today}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% Sections
+\input{section1_introduction}
+\input{section2_background}
+% \input{section3_reimplementation}
+% \input{section4_improvements}
+% \input{section5_experiments}
+% \input{section6_discussion}
+% \input{section7_conclusion}
+
+% Bibliography
+\newpage
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
