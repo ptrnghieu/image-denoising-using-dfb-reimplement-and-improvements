@@ -1,0 +1,51 @@
+\section{Thảo luận}
+\label{sec:discussion}
+
+% -----------------------------------------------------------------------
+\subsection{So sánh DFB với DWT}
+
+Kết quả thực nghiệm cho thấy DWT-Bayes liên tục đạt PSNR cao nhất trên cả hai ảnh và mọi mức nhiễu. Tuy nhiên, DFB-SURE thường có SSIM tốt hơn DWT-Bayes (ví dụ: $0.8342$ vs $0.8276$ tại $\sigma = 10$ trên ảnh Camera; $0.8402$ vs $0.8299$ trên ảnh Coins). SSIM nhạy cảm hơn với việc bảo tồn cấu trúc cạnh và texture, cho thấy DFB-SURE bảo tồn chi tiết hướng tốt hơn mặc dù PSNR tuyệt đối thấp hơn.
+
+Khoảng cách giữa DFB và DWT-Bayes (khoảng 1--2 dB PSNR) có thể được giải thích bởi một số nguyên nhân:
+
+\begin{enumerate}
+    \item \textbf{Undecimated vs critically-sampled:} DFB của chúng tôi là undecimated (overcomplete), tạo ra các subband dense hơn so với critically-sampled DFB trong paper gốc. Critically-sampled DFB có thể cho biểu diễn sparse hơn, giúp thresholding hiệu quả hơn.
+    \item \textbf{LP/HP split không tối ưu:} Gaussian blur với $\sigma = 2$ là một lựa chọn heuristic. Một số noise vẫn còn trong LP component, làm giảm chất lượng. Việc tối ưu $\sigma$ theo mức noise có thể cải thiện kết quả.
+    \item \textbf{DWT được tối ưu cao:} DWT-Bayes của scikit-image sử dụng wavelet db4 (4 vanishing moments, smooth), multi-level decomposition, và BayesShrink đã được tinh chỉnh qua nhiều năm. Đây là một baseline rất cạnh tranh.
+\end{enumerate}
+
+Kết luận quan trọng: trong bối cảnh undecimated DFB, lợi thế về directional selectivity của DFB so với DWT chưa được tận dụng đầy đủ vì LP/HP split làm mất một phần thông tin hướng.
+
+% -----------------------------------------------------------------------
+\subsection{Đánh giá các phương pháp threshold}
+
+\textbf{DFB-SURE vs DFB-GCV.}
+DFB-SURE vượt trội đáng kể so với DFB-GCV (khoảng 1--5 dB PSNR tùy mức nhiễu). GCV có xu hướng chọn threshold nhỏ hơn SURE, dẫn đến under-thresholding: noise không được loại bỏ triệt để. Kết quả này nhất quán với lý thuyết: SURE là unbiased estimate của MSE và có lý thuyết hội tụ mạnh, trong khi GCV được thiết kế tổng quát hơn (không cần biết $\sigma$) nhưng có thể kém hơn khi $\sigma$ đã biết.
+
+\textbf{DFB-SURE vs DFB-Bayes.}
+DFB-SURE đạt PSNR cao hơn DFB-Bayes ở mức $\sigma = 10$ (30.09 vs 28.84 dB trên Camera), nhưng hai phương pháp hội tụ ở $\sigma = 20, 30$. Điều này có thể do BayesShrink giả định prior Laplacian, trong khi tại SNR cao, prior này có thể không phù hợp với phân phối thực của HP component. Tuy nhiên, BayesShrink có ưu điểm về độ phức tạp $O(n)$ thay vì $O(n\log n)$ của SURE.
+
+\textbf{DFB-MAD.}
+DFB-MAD có PSNR thấp nhất trong các phương pháp DFB (trừ GCV ở $\sigma$ cao), do universal threshold $t = \sigma\sqrt{2\log n}$ quá conservative --- xóa quá nhiều signal tại tần số cao. Universal threshold được thiết kế để đảm bảo loại bỏ hoàn toàn noise với xác suất cao khi $n \to \infty$, nhưng trong thực tế với $n = 512^2 = 262144$, threshold này quá lớn dẫn đến over-smoothing.
+
+% -----------------------------------------------------------------------
+\subsection{Đánh giá các cải tiến}
+
+\textbf{Cải tiến 1 (BayesShrink).}
+Kết quả hỗn hợp: DFB-Bayes outperform DFB-MAD và DFB-GCV, nhưng chưa bằng DFB-SURE ở $\sigma$ thấp. Cải tiến này hữu ích nhất khi cần tốc độ tính toán (sản xuất, real-time) hoặc khi $\sigma$ không chính xác (BayesShrink tự ước lượng $\sigma_x$ per-subband).
+
+\textbf{Cải tiến 2 (16 band).}
+DFB-Bayes-16 cải thiện nhẹ so với DFB-Bayes ở $\sigma = 10$ (+0.13 dB trên Camera, +0.03 dB trên Coins) nhưng không khác biệt ở $\sigma = 20, 30$. Điều này gợi ý rằng tại SNR cao, angular resolution mịn hơn có lợi; nhưng tại SNR thấp, lợi ích bị triệt tiêu bởi noise trong các subband hẹp hơn. Chi phí tăng gấp đôi số DFT không được bù đắp xứng đáng ở mức nhiễu cao. Cải tiến này sẽ hữu ích hơn trên các ảnh giàu directional texture (SAR, vải, sợi) hơn là ảnh tự nhiên.
+
+\textbf{Cải tiến 3 (Multi-scale).}
+MS-DFB-Bayes có PSNR thấp hơn DFB-Bayes đơn scale ở $\sigma = 10$ (27.84 vs 28.84 dB trên Camera). Nguyên nhân có thể do: (1) sigma estimation từ bandpass layer không chính xác --- layer thô hơn có noise power thấp hơn nhưng estimator MAD vẫn cộng tất cả; (2) bandpass decomposition tạo ra nhiều lớp redundant, mỗi lớp chứa noise nhỏ nhưng tích lũy sau reconstruction. Tuy nhiên, về mặt định tính, MS-DFB-Bayes cho kết quả smooth hơn ở các vùng flat, do noise nhỏ ở scale thô được loại bỏ. Đây là kiến trúc promising cần thêm tinh chỉnh về sigma estimation per-scale.
+
+% -----------------------------------------------------------------------
+\subsection{Hạn chế của cài đặt hiện tại}
+
+\begin{itemize}
+    \item \textbf{LP/HP split heuristic:} $\sigma_\text{LP} = 2.0$ được chọn thủ công. Một lựa chọn tốt hơn là cross-validate theo noise level, ví dụ $\sigma_\text{LP} = f(\hat{\sigma})$ với một hàm $f$ được học từ dữ liệu.
+    \item \textbf{Không có anisotropic filtering:} DFB undecimated không có quincunx downsampling, nên các subband không thực sự orthogonal --- energy leaking giữa các band liền kề làm giảm hiệu quả thresholding.
+    \item \textbf{Chưa thử trên ảnh SAR:} Paper gốc \cite{rosiles2000} báo cáo DFB vượt trội đặc biệt trên ảnh SAR (speckle noise, directional content). Dataset thực nghiệm của chúng tôi chưa bao gồm ảnh SAR.
+    \item \textbf{Soft thresholding gây bias:} Soft thresholding co lại các hệ số signal một lượng $t$, gây bias. Các operator thay thế như firm thresholding hay James-Stein estimator có thể giảm bias này.
+\end{itemize}
