@@ -1,0 +1,27 @@
+Trong quá trình thực hiện đồ án, nhóm đã sử dụng công cụ AI hỗ trợ (Claude --- Anthropic) như một công cụ tăng tốc độ thực hiện, không phải như một nguồn kiến thức thay thế. Mọi quyết định kỹ thuật quan trọng đều dựa trên nền tảng lý thuyết mà nhóm đã nắm vững trước đó.
+
+\section*{Trong quá trình cài đặt (Re-implementation)}
+
+Việc hiểu bản chất của DFB --- cấu trúc binary tree, quincunx decimation, tính chất partition-of-unity --- được thực hiện qua nghiên cứu trực tiếp paper gốc của Bamberger \& Smith (1992) và Rosiles \& Smith (2000). Từ nền tảng đó, nhóm tự đưa ra quyết định sử dụng undecimated DFB trong miền tần số thay vì critically-sampled DFB, dựa trên phân tích về độ phức tạp cài đặt và tính shift-invariance.
+
+AI được sử dụng để hỗ trợ:
+\begin{itemize}
+    \item Viết nhanh các đoạn code boilerplate (vòng lặp xử lý subband, đọc/ghi ảnh, tính PSNR/SSIM).
+    \item Phát hiện lỗi nhỏ trong quá trình debug, đặc biệt là lỗi thiếu normalization $z = y/\sigma$ trong công thức SURE --- lỗi này được nhóm nhận ra về mặt lý thuyết trước (SURE yêu cầu noise variance = 1), AI chỉ giúp tra cứu nhanh công thức gốc để xác nhận.
+    \item Gợi ý cách sử dụng \texttt{numpy.fft} và \texttt{scipy.ndimage} hiệu quả.
+\end{itemize}
+
+\section*{Trong quá trình đề xuất cải tiến}
+
+Ba cải tiến (BayesShrink, 16 band, multi-scale) đều xuất phát từ phân tích hạn chế của phương pháp gốc mà nhóm tự thực hiện:
+\begin{itemize}
+    \item BayesShrink được chọn vì nhóm nhận thấy SURE có độ phức tạp $O(n\log n)$ và nhạy với outlier --- AI không gợi ý điều này, mà chỉ hỗ trợ tra cứu công thức \eqref{eq:bayes_dfb} từ paper Chang et al.\ (2000).
+    \item Ý tưởng tăng lên 16 band xuất phát từ quan sát trực tiếp rằng bandwidth $22.5°$ của DFB 8 band chưa đủ mịn cho ảnh giàu directional texture.
+    \item Multi-scale undecimated DFB được đề xuất sau khi nhóm tự nhận ra sự tương đồng với Contourlet transform qua đọc paper Do \& Vetterli (2005).
+\end{itemize}
+
+AI được sử dụng để hỗ trợ triển khai nhanh các cải tiến sau khi ý tưởng đã được xác định, và để sinh các hình minh họa (frequency partition, pipeline diagram) phục vụ báo cáo.
+
+\section*{Trong quá trình viết báo cáo}
+
+AI hỗ trợ soạn thảo văn bản tiếng Việt và cấu trúc các đoạn giải thích kỹ thuật. Toàn bộ nội dung toán học, các công thức, và kết quả thực nghiệm do nhóm tự kiểm chứng và chịu trách nhiệm.
